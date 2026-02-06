@@ -1,0 +1,30 @@
+# robots.txt for MyIQ
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://myiq.com/sitemap.xml
+
+# Disallow admin/API routes
+Disallow: /api/
+Disallow: /complete/
+Disallow: /results/
+
+# Allow AI crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
