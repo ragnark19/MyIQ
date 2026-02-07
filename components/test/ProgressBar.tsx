@@ -20,11 +20,11 @@ export default function ProgressBar({
   return (
     <div className="w-full">
       {/* Section tabs */}
-      <div className="flex mb-4">
+      <div className="flex mb-2 md:mb-4">
         {TEST_SECTIONS.map((s, index) => (
           <div
             key={s.id}
-            className={`flex-1 text-center py-2 text-sm font-medium transition-colors ${
+            className={`flex-1 text-center py-1 md:py-2 text-sm font-medium transition-colors ${
               index + 1 === currentSection
                 ? 'text-primary-600 border-b-2 border-primary-600'
                 : index + 1 < currentSection
@@ -44,11 +44,11 @@ export default function ProgressBar({
       </div>
 
       {/* Current section info */}
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-gray-600">
+      <div className="flex items-center justify-between mb-1 md:mb-2">
+        <span className="text-xs md:text-sm text-gray-600">
           Question {currentQuestion} of {totalQuestions}
         </span>
-        <span className="text-sm text-gray-600">
+        <span className="text-xs md:text-sm text-gray-600">
           {answeredCount} answered
         </span>
       </div>

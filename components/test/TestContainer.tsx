@@ -203,10 +203,10 @@ export default function TestContainer({
   const isLastSection = currentSection === TEST_SECTIONS.length
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-[100dvh] bg-gray-50 flex flex-col overflow-hidden md:block md:h-auto md:overflow-visible">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 py-4">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 flex-shrink-0">
+        <div className="max-w-5xl mx-auto px-3 py-2 md:px-4 md:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
@@ -227,7 +227,7 @@ export default function TestContainer({
       </header>
 
       {/* Progress */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
+      <div className="bg-white border-b border-gray-200 px-3 py-1.5 md:px-4 md:py-3 flex-shrink-0">
         <div className="max-w-5xl mx-auto">
           <ProgressBar
             currentSection={currentSection}
@@ -239,13 +239,13 @@ export default function TestContainer({
       </div>
 
       {/* Question content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+      <main className="max-w-4xl mx-auto px-3 py-2 md:px-4 md:py-8 flex-1 flex flex-col min-h-0 md:block">
+        <div className="bg-white rounded-2xl shadow-lg p-3 md:p-6 lg:p-8 flex-1 min-h-0 overflow-y-auto md:overflow-visible">
           {renderQuestion()}
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between mt-6">
+        <div className="flex items-center justify-between mt-2 md:mt-6 flex-shrink-0">
           <Button
             variant="ghost"
             onClick={handlePrevious}
@@ -257,7 +257,7 @@ export default function TestContainer({
             Previous
           </Button>
 
-          <div className="text-sm text-gray-500">
+          <div className="text-xs md:text-sm text-gray-500">
             {selectedAnswer ? 'Answer saved' : 'Select an answer'}
           </div>
 
@@ -282,7 +282,7 @@ export default function TestContainer({
         </div>
 
         {/* Question dots navigation */}
-        <div className="flex justify-center gap-2 mt-6 flex-wrap">
+        <div className="hidden md:flex justify-center gap-2 mt-6 flex-wrap">
           {sectionQuestions.map((q, index) => (
             <button
               key={q.id}
@@ -290,7 +290,7 @@ export default function TestContainer({
                 setCurrentQuestionIndex(index)
                 questionStartTime.current = Date.now()
               }}
-              className={`w-8 h-8 rounded-full text-sm font-medium transition-all ${
+              className={`w-6 h-6 text-xs md:w-8 md:h-8 md:text-sm rounded-full font-medium transition-all ${
                 index === currentQuestionIndex
                   ? 'bg-primary-600 text-white'
                   : responses.has(q.id)
