@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function Footer() {
   return (
     <footer className="bg-slate-900 text-white py-12">
@@ -12,10 +14,11 @@ export default function Footer() {
           </div>
 
           {/* Links */}
-          <div className="flex gap-8 text-gray-400">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-white transition-colors">Contact</a>
+          <div className="flex flex-wrap justify-center gap-8 text-gray-400">
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link href="/refund" className="hover:text-white transition-colors">Refund Policy</Link>
+            <a href="mailto:support@myiq.is" className="hover:text-white transition-colors">Contact</a>
           </div>
 
           {/* Copyright */}

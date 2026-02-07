@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://myiq.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://myiq.is'),
   title: {
     default: 'MyIQ - Professional Online IQ Test | Measure Your Intelligence',
     template: '%s | MyIQ'
@@ -81,30 +81,30 @@ export default function RootLayout({
     '@graph': [
       {
         '@type': 'WebSite',
-        '@id': 'https://myiq.com/#website',
-        url: 'https://myiq.com',
+        '@id': 'https://myiq.is/#website',
+        url: 'https://myiq.is',
         name: 'MyIQ',
         description: 'Professional Online IQ Test',
         publisher: {
-          '@id': 'https://myiq.com/#organization'
+          '@id': 'https://myiq.is/#organization'
         }
       },
       {
         '@type': 'Organization',
-        '@id': 'https://myiq.com/#organization',
+        '@id': 'https://myiq.is/#organization',
         name: 'MyIQ',
-        url: 'https://myiq.com',
+        url: 'https://myiq.is',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://myiq.com/logo.png'
+          url: 'https://myiq.is/logo.png'
         },
         sameAs: []
       },
       {
         '@type': 'WebApplication',
-        '@id': 'https://myiq.com/#application',
+        '@id': 'https://myiq.is/#application',
         name: 'MyIQ IQ Test',
-        url: 'https://myiq.com/test',
+        url: 'https://myiq.is/test',
         applicationCategory: 'EducationalApplication',
         operatingSystem: 'Any',
         offers: {
@@ -123,7 +123,7 @@ export default function RootLayout({
       },
       {
         '@type': 'FAQPage',
-        '@id': 'https://myiq.com/#faq',
+        '@id': 'https://myiq.is/#faq',
         mainEntity: [
           {
             '@type': 'Question',

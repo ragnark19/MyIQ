@@ -138,7 +138,7 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
         <div className="mt-12 text-center text-gray-500 text-sm">
           <p>Thank you for taking the MyIQ assessment.</p>
           <p className="mt-1">
-            Questions or concerns? Contact us at support@myiq.com
+            Questions or concerns? Contact us at support@myiq.is
           </p>
         </div>
       </main>
