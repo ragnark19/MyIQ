@@ -29,7 +29,17 @@ export default function QuestionReview({ questions, responses }: QuestionReviewP
 
   const responseMap = new Map(responses.map(r => [r.question_id, r]))
 
-  const filteredQuestions = questions.filter(q => {
+  // Build answer order from responses (already sorted by answered_at from server)
+  const answerOrder = new Map(responses.map((r, i) => [r.question_id, i]))
+
+  // Sort questions by the order they were answered
+  const orderedQuestions = [...questions].sort((a, b) => {
+    const orderA = answerOrder.get(a.id) ?? Infinity
+    const orderB = answerOrder.get(b.id) ?? Infinity
+    return orderA - orderB
+  })
+
+  const filteredQuestions = orderedQuestions.filter(q => {
     if (filterCategory !== 'all' && q.category !== filterCategory) return false
     if (filterStatus !== 'all') {
       const response = responseMap.get(q.id)
@@ -178,7 +188,7 @@ export default function QuestionReview({ questions, responses }: QuestionReviewP
                     </span>
                   </div>
                   <p className="text-sm text-gray-700 truncate">
-                    {question.question_data.prompt}
+                    Q{index + 1}: {question.question_data.prompt}
                   </p>
                 </div>
 

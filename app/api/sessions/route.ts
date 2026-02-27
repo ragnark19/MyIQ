@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
-    const { sessionId, currentSection, status, email } = body
+    const { sessionId, currentSection, email } = body
 
     if (!sessionId) {
       return NextResponse.json({ error: 'Session ID required' }, { status: 400 })
@@ -94,7 +94,8 @@ export async function PATCH(request: NextRequest) {
 
     const updates: Record<string, any> = {}
     if (currentSection !== undefined) updates.current_section = currentSection
-    if (status !== undefined) updates.status = status
+    // status is intentionally NOT settable via this endpoint —
+    // it can only change via calculate-score (→completed) and webhook (→paid)
     if (email !== undefined) updates.email = email
 
     const { data: session, error } = await supabase

@@ -134,11 +134,12 @@ export function analyzeStrengthsWeaknesses(categoryScores: CategoryScore[]): {
   }
 
   // If no clear strengths/weaknesses, use relative performance
-  if (strengths.length === 0 && sorted.length > 0) {
+  // But only if the top category actually has some correct answers
+  if (strengths.length === 0 && sorted.length > 0 && sorted[0].percentage > 0) {
     strengths.push(CATEGORY_NAMES[sorted[0].category])
   }
 
-  if (weaknesses.length === 0 && sorted.length > 1) {
+  if (weaknesses.length === 0 && sorted.length > 1 && sorted[sorted.length - 1].percentage < 100) {
     weaknesses.push(CATEGORY_NAMES[sorted[sorted.length - 1].category])
   }
 

@@ -6,7 +6,7 @@ import ScoreDisplay from '@/components/results/ScoreDisplay'
 import CategoryBreakdown from '@/components/results/CategoryBreakdown'
 import StrengthsWeaknesses from '@/components/results/StrengthsWeaknesses'
 import CertificateDownload from '@/components/results/CertificateDownload'
-import ShareButtons from '@/components/results/ShareButtons'
+
 import QuestionReview from '@/components/results/QuestionReview'
 import Button from '@/components/ui/Button'
 
@@ -47,6 +47,7 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
     .from('test_responses')
     .select('*')
     .eq('session_id', sessionId)
+    .order('answered_at', { ascending: true })
 
   // Calculate category scores
   const categoryScores = questions && responses
@@ -124,15 +125,6 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
             <QuestionReview questions={questions} responses={responses} />
           </div>
         )}
-
-        {/* Share section */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Share Your Results</h3>
-          <p className="text-gray-600 mb-4">
-            Proud of your score? Share it with friends and challenge them to take the test!
-          </p>
-          <ShareButtons iqScore={iqScore} percentile={percentile} />
-        </div>
 
         {/* Footer */}
         <div className="mt-12 text-center text-gray-500 text-sm">

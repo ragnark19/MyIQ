@@ -24,6 +24,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }
 
+    // Only allow scoring for in-progress sessions
+    if (session.status !== 'in_progress') {
+      return NextResponse.json({ error: 'Session already scored' }, { status: 400 })
+    }
+
     // Get all questions
     const { data: questions, error: questionsError } = await supabase
       .from('questions')

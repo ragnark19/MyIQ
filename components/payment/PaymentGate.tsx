@@ -48,60 +48,30 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
       body: JSON.stringify({ sessionId, email })
     })
 
-    // If Paddle is not configured, simulate payment for development
-    if (!process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || !paddleLoaded) {
-      // Development mode: simulate successful payment
-      try {
-        const response = await fetch('/api/paddle-webhook', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            event_type: 'transaction.completed',
-            data: {
-              id: 'dev_' + Date.now(),
-              custom_data: { sessionId },
-              customer: { email },
-              details: {
-                totals: { total: '2.99', currency_code: 'USD' }
-              }
-            }
-          })
-        })
-
-        if (response.ok) {
-          onPaymentSuccess?.()
-          router.push(`/results/${sessionId}`)
-        } else {
-          setError('Payment processing failed. Please try again.')
-        }
-      } catch (err) {
-        setError('An error occurred. Please try again.')
-      } finally {
-        setIsLoading(false)
-      }
+    if (!paddleLoaded || !window.Paddle) {
+      setError('Payment system is loading. Please try again in a moment.')
+      setIsLoading(false)
       return
     }
 
-    // Production: Use Paddle checkout
-    if (window.Paddle) {
-      window.Paddle.Checkout.open({
-        items: [
-          {
-            priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID!,
-            quantity: 1
-          }
-        ],
-        customData: { sessionId },
-        customer: { email },
-        successCallback: (data) => {
-          onPaymentSuccess?.()
-          router.push(`/results/${sessionId}`)
-        },
-        closeCallback: () => {
-          setIsLoading(false)
+    // Use Paddle checkout
+    window.Paddle.Checkout.open({
+      items: [
+        {
+          priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID!,
+          quantity: 1
         }
-      })
-    }
+      ],
+      customData: { sessionId },
+      customer: { email },
+      successCallback: (data) => {
+        onPaymentSuccess?.()
+        router.push(`/results/${sessionId}`)
+      },
+      closeCallback: () => {
+        setIsLoading(false)
+      }
+    })
   }
 
   return (
@@ -207,7 +177,7 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
           </div>
         </div>
 
-        {/* Skip payment for testing */}
+        {/* Dev skip: uses a dedicated server-side bypass route, not the webhook */}
         {process.env.NODE_ENV !== 'production' && (
           <div className="mt-8 pt-6 border-t border-dashed border-gray-300">
             <p className="text-xs text-gray-400 text-center mb-3">Development Mode</p>
@@ -215,23 +185,15 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
               onClick={async () => {
                 setIsLoading(true)
                 try {
-                  const response = await fetch('/api/paddle-webhook', {
+                  const response = await fetch('/api/dev-bypass-payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      event_type: 'transaction.completed',
-                      data: {
-                        id: 'test_' + Date.now(),
-                        custom_data: { sessionId },
-                        customer: { email: 'test@example.com' },
-                        details: {
-                          totals: { total: '0.00', currency_code: 'USD' }
-                        }
-                      }
-                    })
+                    body: JSON.stringify({ sessionId, email: email || 'test@example.com' })
                   })
                   if (response.ok) {
                     router.push(`/results/${sessionId}`)
+                  } else {
+                    setError('Dev bypass not available in production.')
                   }
                 } catch (err) {
                   console.error(err)
