@@ -21,6 +21,8 @@ npm run start    # Start production server
 
 No test framework is configured.
 
+**IMPORTANT: Always run `npm run build` before committing and pushing.** Vercel deploys from main, so broken builds go straight to production. Fix any type or build errors before pushing.
+
 ## Environment Variables
 
 See `.env.local.example`. Key variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN`, `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `NEXT_PUBLIC_PADDLE_PRICE_ID`, `NEXT_PUBLIC_APP_URL`.

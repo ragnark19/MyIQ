@@ -1,7 +1,8 @@
 declare global {
   interface Window {
     Paddle?: {
-      Initialize: (options: { token: string; environment?: 'sandbox' | 'production' }) => void
+      Environment: { set: (env: 'sandbox' | 'production') => void }
+      Initialize: (options: { token: string }) => void
       Checkout: {
         open: (options: {
           items: { priceId: string; quantity: number }[]
@@ -17,9 +18,11 @@ declare global {
 
 export function initializePaddle() {
   if (typeof window !== 'undefined' && window.Paddle) {
+    if (process.env.NODE_ENV !== 'production') {
+      window.Paddle.Environment.set('sandbox')
+    }
     window.Paddle.Initialize({
-      token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN!,
-      environment: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
+      token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN!
     })
   }
 }
