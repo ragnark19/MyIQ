@@ -20,9 +20,11 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
   const initializePaddle = () => {
     if (typeof window !== 'undefined' && window.Paddle && !paddleLoaded) {
       try {
+        if (process.env.NODE_ENV !== 'production') {
+          window.Paddle.Environment.set('sandbox')
+        }
         window.Paddle.Initialize({
-          token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || 'test_token',
-          environment: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
+          token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || 'test_token'
         })
         setPaddleLoaded(true)
       } catch (err) {
