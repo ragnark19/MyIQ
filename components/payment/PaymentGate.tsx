@@ -17,15 +17,26 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
   const [error, setError] = useState<string | null>(null)
   const [paddleLoaded, setPaddleLoaded] = useState(false)
 
-  const handlePaddleLoad = () => {
-    if (typeof window !== 'undefined' && window.Paddle) {
-      window.Paddle.Initialize({
-        token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || 'test_token',
-        environment: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
-      })
-      setPaddleLoaded(true)
+  const initializePaddle = () => {
+    if (typeof window !== 'undefined' && window.Paddle && !paddleLoaded) {
+      try {
+        window.Paddle.Initialize({
+          token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || 'test_token',
+          environment: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
+        })
+        setPaddleLoaded(true)
+      } catch (err) {
+        console.error('Paddle initialization failed:', err)
+      }
     }
   }
+
+  // Retry Paddle init if script loaded before component mounted
+  useEffect(() => {
+    if (!paddleLoaded) {
+      initializePaddle()
+    }
+  }, [paddleLoaded])
 
   const handlePayment = async () => {
     if (!email) {
@@ -47,6 +58,11 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sessionId, email })
     })
+
+    // Try to initialize Paddle if not yet loaded
+    if (!paddleLoaded && window.Paddle) {
+      initializePaddle()
+    }
 
     if (!paddleLoaded || !window.Paddle) {
       setError('Payment system is loading. Please try again in a moment.')
@@ -78,7 +94,7 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
     <>
       <Script
         src="https://cdn.paddle.com/paddle/v2/paddle.js"
-        onLoad={handlePaddleLoad}
+        onLoad={initializePaddle}
       />
 
       <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8">
@@ -137,7 +153,7 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="your@email.com"
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-gray-900"
           />
           <p className="text-xs text-gray-500 mt-2">
             We'll send your receipt and certificate to this email
