@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Script from 'next/script'
 import Button from '@/components/ui/Button'
+import type { PaddleEvent } from '@/lib/paddle/client'
 
 interface PaymentGateProps {
   sessionId: string
@@ -16,6 +17,7 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [paddleLoaded, setPaddleLoaded] = useState(false)
+  const sessionIdRef = useRef(sessionId)
 
   const initializePaddle = () => {
     if (typeof window !== 'undefined' && window.Paddle && !paddleLoaded) {
@@ -24,7 +26,16 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
           window.Paddle.Environment.set('sandbox')
         }
         window.Paddle.Initialize({
-          token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || 'test_token'
+          token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || 'test_token',
+          eventCallback: (event: PaddleEvent) => {
+            if (event.name === 'checkout.completed') {
+              onPaymentSuccess?.()
+              router.push(`/results/${sessionIdRef.current}`)
+            }
+            if (event.name === 'checkout.closed') {
+              setIsLoading(false)
+            }
+          }
         })
         setPaddleLoaded(true)
       } catch (err) {
@@ -82,14 +93,7 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
           }
         ],
         customData: { sessionId },
-        customer: { email },
-        successCallback: (data) => {
-          onPaymentSuccess?.()
-          router.push(`/results/${sessionId}`)
-        },
-        closeCallback: () => {
-          setIsLoading(false)
-        }
+        customer: { email }
       })
     } catch (err) {
       console.error('Paddle checkout error:', err)
