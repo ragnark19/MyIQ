@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import crypto from 'crypto'
 
-const MAX_SIGNATURE_AGE_SECONDS = 30
+const MAX_SIGNATURE_AGE_SECONDS = 300
 
 // Verify Paddle v2 webhook signature
 // Header format: ts=TIMESTAMP;h1=HASH
