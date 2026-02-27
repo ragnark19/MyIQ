@@ -73,23 +73,29 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
     }
 
     // Use Paddle checkout
-    window.Paddle.Checkout.open({
-      items: [
-        {
-          priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID!,
-          quantity: 1
+    try {
+      window.Paddle.Checkout.open({
+        items: [
+          {
+            priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID!,
+            quantity: 1
+          }
+        ],
+        customData: { sessionId },
+        customer: { email },
+        successCallback: (data) => {
+          onPaymentSuccess?.()
+          router.push(`/results/${sessionId}`)
+        },
+        closeCallback: () => {
+          setIsLoading(false)
         }
-      ],
-      customData: { sessionId },
-      customer: { email },
-      successCallback: (data) => {
-        onPaymentSuccess?.()
-        router.push(`/results/${sessionId}`)
-      },
-      closeCallback: () => {
-        setIsLoading(false)
-      }
-    })
+      })
+    } catch (err) {
+      console.error('Paddle checkout error:', err)
+      setError('Unable to open checkout. Please try again.')
+      setIsLoading(false)
+    }
   }
 
   return (
