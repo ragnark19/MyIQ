@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
+import { createTestSession } from '@/lib/actions/test'
 
 export default function TestStartPage() {
   const router = useRouter()
@@ -14,14 +15,12 @@ export default function TestStartPage() {
     setError(null)
 
     try {
-      const response = await fetch('/api/sessions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      })
+      const data = await createTestSession()
 
-      if (!response.ok) throw new Error('Failed to create session')
+      if (data.error || !data.session) {
+        throw new Error(data.error || 'Failed to create session')
+      }
 
-      const data = await response.json()
       router.push(`/test/${data.session.id}`)
     } catch (err) {
       setError('Failed to start test. Please try again.')

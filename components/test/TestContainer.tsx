@@ -12,6 +12,7 @@ import NumericalQuestion from './questions/NumericalQuestion'
 import VerbalQuestion from './questions/VerbalQuestion'
 import SpatialQuestion from './questions/SpatialQuestion'
 import Button from '@/components/ui/Button'
+import { submitAnswer as submitAnswerAction, updateSessionSection, calculateScore } from '@/lib/actions/test'
 
 interface TestContainerProps {
   sessionId: string
@@ -50,13 +51,9 @@ export default function TestContainer({
       setSelectedAnswer(null)
 
       // Update session on server
-      await fetch('/api/sessions', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId,
-          currentSection: currentSection + 1
-        })
+      await updateSessionSection({
+        sessionId,
+        currentSection: currentSection + 1,
       })
     } else {
       // Complete test
@@ -95,15 +92,11 @@ export default function TestContainer({
     const timeSpent = Math.floor((Date.now() - questionStartTime.current) / 1000)
 
     try {
-      await fetch('/api/submit-answer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId,
-          questionId,
-          answer,
-          timeSpent
-        })
+      await submitAnswerAction({
+        sessionId,
+        questionId,
+        answer,
+        timeSpent,
       })
 
       setResponses(prev => {
@@ -136,13 +129,9 @@ export default function TestContainer({
       setShowSectionIntro(true)
       setSelectedAnswer(null)
 
-      await fetch('/api/sessions', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId,
-          currentSection: nextSection
-        })
+      await updateSessionSection({
+        sessionId,
+        currentSection: nextSection,
       })
     } else {
       // Complete test
@@ -160,11 +149,7 @@ export default function TestContainer({
   const completeTest = async () => {
     setIsSubmitting(true)
     try {
-      await fetch('/api/calculate-score', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId })
-      })
+      await calculateScore({ sessionId })
       router.push(`/complete/${sessionId}`)
     } catch (err) {
       console.error('Failed to complete test:', err)

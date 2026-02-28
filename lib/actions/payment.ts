@@ -1,19 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+'use server'
 
-export async function POST(request: NextRequest) {
-  // Hard block in production — this route must never work in prod
+import { createServiceClient } from '@/lib/supabase/server'
+import { devBypassSchema } from '@/lib/validations'
+
+export async function devBypassPayment(input: unknown) {
+  // Hard block in production
   if (process.env.NODE_ENV === 'production') {
-    return NextResponse.json({ error: 'Not available' }, { status: 404 })
+    return { error: 'Not available' }
   }
 
+  const parsed = devBypassSchema.safeParse(input)
+  if (!parsed.success) {
+    return { error: 'Invalid input' }
+  }
+
+  const { sessionId, email } = parsed.data
+
   try {
-    const { sessionId, email } = await request.json()
-
-    if (!sessionId) {
-      return NextResponse.json({ error: 'Missing sessionId' }, { status: 400 })
-    }
-
     const supabase = await createServiceClient()
 
     // Verify session exists and is completed
@@ -24,12 +27,14 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (sessionError || !session) {
-      return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+      return { error: 'Session not found' }
     }
 
     if (session.status !== 'completed') {
-      return NextResponse.json({ error: 'Session not in completed state' }, { status: 400 })
+      return { error: 'Session not in completed state' }
     }
+
+    const customerEmail = email || 'dev@localhost'
 
     // Create dev payment record
     const { error: paymentError } = await supabase
@@ -40,8 +45,8 @@ export async function POST(request: NextRequest) {
         amount: 0,
         currency: 'USD',
         status: 'completed',
-        customer_email: email || 'dev@localhost',
-        paid_at: new Date().toISOString()
+        customer_email: customerEmail,
+        paid_at: new Date().toISOString(),
       })
 
     if (paymentError) {
@@ -51,7 +56,7 @@ export async function POST(request: NextRequest) {
     // Update session to paid
     await supabase
       .from('test_sessions')
-      .update({ status: 'paid', email: email || 'dev@localhost' })
+      .update({ status: 'paid', email: customerEmail })
       .eq('id', sessionId)
 
     // Create certificate
@@ -61,12 +66,12 @@ export async function POST(request: NextRequest) {
       .insert({
         session_id: sessionId,
         certificate_number: certificateNumber,
-        generated_at: new Date().toISOString()
+        generated_at: new Date().toISOString(),
       })
 
-    return NextResponse.json({ success: true })
+    return { success: true }
   } catch (error) {
     console.error('Dev bypass error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return { error: 'Internal server error' }
   }
 }

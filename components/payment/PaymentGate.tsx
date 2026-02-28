@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import Script from 'next/script'
 import Button from '@/components/ui/Button'
 import type { PaddleEvent } from '@/lib/paddle/client'
+import { updateSessionEmail } from '@/lib/actions/test'
+import { devBypassPayment } from '@/lib/actions/payment'
 
 interface PaymentGateProps {
   sessionId: string
@@ -66,11 +68,7 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
     setError(null)
 
     // Update session with email
-    await fetch('/api/sessions', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, email })
-    })
+    await updateSessionEmail({ sessionId, email })
 
     // Try to initialize Paddle if not yet loaded
     if (!paddleLoaded && window.Paddle) {
@@ -213,15 +211,11 @@ export default function PaymentGate({ sessionId, onPaymentSuccess }: PaymentGate
               onClick={async () => {
                 setIsLoading(true)
                 try {
-                  const response = await fetch('/api/dev-bypass-payment', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sessionId, email: email || 'test@example.com' })
-                  })
-                  if (response.ok) {
+                  const result = await devBypassPayment({ sessionId, email: email || 'test@example.com' })
+                  if (result.success) {
                     router.push(`/results/${sessionId}`)
                   } else {
-                    setError('Dev bypass not available in production.')
+                    setError(result.error || 'Dev bypass not available in production.')
                   }
                 } catch (err) {
                   console.error(err)
